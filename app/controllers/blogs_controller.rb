@@ -1,5 +1,6 @@
 class BlogsController < ApplicationController
   before_action :set_blog, only: %i[ show edit update destroy ]
+  before_action :authenticate_user!, only: [:new, :edit, :update, :destroy]
 
   # GET /blogs or /blogs.json
   def index
@@ -25,6 +26,7 @@ class BlogsController < ApplicationController
 
     respond_to do |format|
       if @blog.save
+        BlogMailer.blog_mail(@blog).deliver
         format.html { redirect_to @blog, notice: "Blog was successfully created." }
         format.json { render :show, status: :created, location: @blog }
       else
@@ -64,6 +66,6 @@ class BlogsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def blog_params
-      params.require(:blog).permit(:title, :content)
+      params.require(:blog).permit(:title, :content, :email)
     end
 end
